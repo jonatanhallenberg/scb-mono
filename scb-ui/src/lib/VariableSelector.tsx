@@ -1,10 +1,9 @@
 import styled from 'styled-components';
 import { Tag } from './Tag';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ExpandButton } from './ExpandButton';
 import { MultiSelect } from './MultiSelect';
 import { AnimatePresence, motion } from 'framer-motion';
-
 
 const Card = styled.div`
     border-radius: 12px;
@@ -31,12 +30,19 @@ type VariableSelectorType = {
     values: { label: string, code: string }[],
     code: string,
     onChange: (variableCode: string, valueCode: string[]) => void;
+    selectedValues: string[]
 }
 
-export const VariableSelector = ({ title, required, values, code, onChange }: VariableSelectorType) => {
+export const VariableSelector = ({ title, required, values, code, onChange, selectedValues }: VariableSelectorType) => {
 
     const [isExpanded, setIsExpanded] = useState(false);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+    useEffect(() => {
+        if (selectedValues) {
+            setSelectedIds(selectedValues)
+        }
+    }, [selectedValues])
 
     const updateSelectedIds = (selectedIds: string[]) => {
         setSelectedIds(selectedIds);

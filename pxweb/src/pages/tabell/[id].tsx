@@ -7,6 +7,7 @@ import { AppContext } from "../../context/AppContext";
 import styled from "styled-components";
 import { DataView } from "../../components/DataView";
 import { ChartView } from "../../components/ChartView";
+import { ParsedUrlQuery } from "querystring";
 
 type RegularVariable = components["schemas"]["RegularVariable"];
 
@@ -34,11 +35,29 @@ const TablePage = () => {
 
     const [valueCodes, setValueCodes] = useState<{ [key: string]: string[]; }>({});
 
-    const setValueCode = (variableCode: string, valueCode: string[]) => {
-        setValueCodes({ ...valueCodes, [variableCode]: valueCode });
+    const getValueCodesFromQueryString = (queryString: ParsedUrlQuery) => {
+        const allValueCodes: { [key: string]: string[]; } = {};
+        Object.keys(queryString).forEach(key => {
+            if (key !== 'id') {
+                allValueCodes[key] = (queryString[key] as string).split(',');
+            }
+        })
+        return allValueCodes;
     }
 
-    console.log(valueCodes);
+    useEffect(() => {
+        setValueCodes(getValueCodesFromQueryString(query));
+    }, [query, setValueCodes])
+
+    const setValueCode = (variableCode: string, valueCode: string[]) => {
+        setValueCodes({ ...valueCodes, [variableCode]: valueCode });
+        updateValuesCodesInQueryString({ ...valueCodes, [variableCode]: valueCode })
+    }
+
+    const updateValuesCodesInQueryString = (valueCodes: { [key: string]: string[]; }) => {
+        const valueCodesAsQueryString = Object.keys(valueCodes).map(key => `${key}=${valueCodes[key].join(',')}`).join('&');
+        query.id && window.history.replaceState({}, '', `/tabell/${query.id}?${valueCodesAsQueryString}`);
+    }
 
     useEffect(() => {
 
@@ -68,6 +87,7 @@ const TablePage = () => {
                             values={
                                 regularVariable.values.map(value => ({ label: value.label, code: value.code }))
                             }
+                            selectedValues={valueCodes[regularVariable.id]}
                             onChange={setValueCode}
                         />
 

@@ -33,7 +33,7 @@ type DataViewProps = {
     displayType?: "table" | "chart"
 }
 
-export const DataView = ({ id, valueCodes, displayType = "chart" }: DataViewProps) => {
+export const DataView = ({ id, valueCodes, displayType = "table" }: DataViewProps) => {
 
     const [data, setData] = useState<MyDataType>()
 
